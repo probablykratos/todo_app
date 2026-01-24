@@ -1,21 +1,24 @@
-import 'package:todo/features/auth/domain/entities/user_entity.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../../domain/entities/user_entity.dart';
 
 class UserModel extends UserEntity {
-  const UserModel(super.id, super.email, super.name);
+  UserModel({required super.uid,required super.email,super.userName}) {
+   throw UnimplementedError();
+ }
 
-  factory UserModel.fromJson(Map<String, dynamic> json) {
+  factory UserModel.fromFirebaseUser(User user) {
     return UserModel(
-      json['id'] as String,
-      json['email'] as String,
-      json['name'] as String,
+      uid: user.uid,
+      email: user.email ?? '',
+      userName: user.displayName,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'email': email,
-      'name': name,
-    };
+  UserEntity toEntity() {
+    return UserEntity(
+      uid: uid,
+      email: email,
+      userName: userName,
+    );
   }
 }
