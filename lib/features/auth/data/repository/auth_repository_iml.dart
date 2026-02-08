@@ -67,9 +67,14 @@ class AuthRepositoryIml implements AuthRepository {
     required String username,
   }) async {
     try{
-      final user = await authRemoteDatasource.signUpWithEmail(email, password);
+      final user = await authRemoteDatasource.signUpWithEmail(email, password,username);
       return Right(user.toEntity());
-    }catch(e){
+    }on InvalidCredentialException {
+      return Left(InvalidCredentialFailure());
+    } on ServerException {
+      return Left(ServerFailure());
+    } catch (e) {
+      print('SIGNUP ERROR: $e');
       return Left(ServerFailure());
     }
   }

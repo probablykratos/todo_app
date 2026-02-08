@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:todo/features/auth/data/datasources/auth_remote_datasource.dart';
 import 'package:todo/features/auth/data/repository/auth_repository_iml.dart';
@@ -6,13 +8,17 @@ import 'package:todo/features/auth/domain/repository/auth_repository.dart';
 import 'package:todo/features/auth/domain/usecases/check_auth_usercase.dart';
 import 'package:todo/features/auth/domain/usecases/get_current_user_usecase.dart';
 import 'package:todo/features/auth/domain/usecases/login_usecases.dart';
+import 'package:todo/features/auth/domain/usecases/register_usecase.dart';
 import 'package:todo/features/auth/presentations/bloc/auth_bloc.dart';
-
 import 'features/auth/domain/usecases/logout_usecases.dart';
 
 final sl = GetIt.instance;
 
 Future init() async {
+
+  sl.registerLazySingleton(() => FirebaseAuth.instance);
+  sl.registerLazySingleton(() => FirebaseFirestore.instance);
+
   sl.registerFactory(
     () => AuthBloc(
       registerUseCase: sl(),
@@ -22,7 +28,7 @@ Future init() async {
       checkAuthUserCase: sl(),
     ),
   );
-
+  sl.registerLazySingleton(()=>RegisterUseCase(authRepository: sl()));
   sl.registerLazySingleton(() => LoginUseCases(repository: sl()));
   sl.registerLazySingleton(() => LogoutUseCases(repository: sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(repository: sl()));
@@ -35,10 +41,9 @@ Future init() async {
   );
 
   sl.registerLazySingleton<AuthRemoteDataSource>(
-    () => AuthRemoteDataSourceImpl(firebaseAuth: sl()),
+    () => AuthRemoteDataSourceImpl(firebaseAuth: sl(), firestore: sl()),
   );
 
-
   final sharedPreference= await SharedPreferences.getInstance();
-  sl.registerLazySingleton(()=>sharedPreference); 
+  sl.registerLazySingleton(()=>sharedPreference);
 }

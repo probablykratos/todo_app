@@ -6,16 +6,9 @@ abstract class AuthState extends Equatable {
   List<Object?> get props => [];
 }
 
-
-
 class AuthInitialState extends AuthState {}
 
-
-
-
 class AuthLoadingState extends AuthState {}
-
-
 
 class AuthAuthenticatedState extends AuthState {
   final UserEntity userEntity;
@@ -25,13 +18,7 @@ class AuthAuthenticatedState extends AuthState {
   List<Object?> get props => [userEntity];
 }
 
-
-
-
 class AuthUnAuthenticatedState extends AuthState {}
-
-
-
 
 class AuthErrorState extends AuthState {
   final String message;

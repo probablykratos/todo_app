@@ -28,42 +28,57 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthLogoutEvent>(_onAuthLogoutEvent);
     on<AuthSignUpEvent>(_onAuthSignUpEvent);
   }
-  Future _onAuthCheckEvent(
-    AuthCheckEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+
+  // =====================================================================
+  // AUTH CHECK: Fixed version
+  // =====================================================================
+  Future<void> _onAuthCheckEvent(
+      AuthCheckEvent event,
+      Emitter<AuthState> emit,
+      ) async {
     emit(AuthLoadingState());
 
+    // ✅ Get the auth check result
     final result = await checkAuthUserCase(NoParams());
 
+    // ✅ Use a single fold with all logic inside
     await result.fold(
-      (left) {
+      // LEFT: Not authenticated
+          (failure) async {
         emit(AuthUnAuthenticatedState());
       },
-      (right) async {
-        if (right) {
+      // RIGHT: Check if authenticated
+          (isAuthenticated) async {
+        if (isAuthenticated) {
+          // Get user data
           final userResult = await getCurrentUserUseCase(NoParams());
-          await userResult.fold(
-            (l) {
+
+          userResult.fold(
+                (failure) {
               emit(AuthUnAuthenticatedState());
             },
-            (r) {
-              if (r != null) {
-                emit(AuthAuthenticatedState(userEntity: r));
+                (user) {
+              if (user != null) {
+                emit(AuthAuthenticatedState(userEntity: user));
               } else {
                 emit(AuthUnAuthenticatedState());
               }
             },
           );
+        } else {
+          emit(AuthUnAuthenticatedState());
         }
       },
     );
   }
 
-  Future _onAuthLoginEvent(
-    AuthLoginEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  // =====================================================================
+  // LOGIN: This one is fine
+  // =====================================================================
+  Future<void> _onAuthLoginEvent(
+      AuthLoginEvent event,
+      Emitter<AuthState> emit,
+      ) async {
     emit(AuthLoadingState());
 
     final result = await loginUseCases(
@@ -71,44 +86,51 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     result.fold(
-      (left) {
+          (failure) {
         String message = "Auth Error";
-        if (left is InvalidCredentialFailure) {
+
+        if (failure is InvalidCredentialFailure) {
           message = "Wrong EMAIL or PASSWORD";
-        } else if (left is ServerFailure) {
-          message = "Server failure";
-        } else {
-          emit(AuthErrorState(message: message));
+        } else if (failure is ServerFailure) {
+          message = "Server failure. Please try again.";
         }
+
+        emit(AuthErrorState(message: message));
       },
-      (right) {
-        emit(AuthAuthenticatedState(userEntity: right));
+          (user) {
+        emit(AuthAuthenticatedState(userEntity: user));
       },
     );
   }
 
-  Future _onAuthLogoutEvent(
-    AuthLogoutEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  // =====================================================================
+  // LOGOUT: This one is fine
+  // =====================================================================
+  Future<void> _onAuthLogoutEvent(
+      AuthLogoutEvent event,
+      Emitter<AuthState> emit,
+      ) async {
     emit(AuthLoadingState());
 
     final result = await logoutUseCases(NoParams());
 
     result.fold(
-      (l) {
-        emit(AuthErrorState(message: "LogOut Error"));
+          (failure) {
+        emit(AuthErrorState(message: "Logout Error. Please try again."));
       },
-      (r) {
+          (success) {
         emit(AuthUnAuthenticatedState());
       },
     );
   }
 
-  Future _onAuthSignUpEvent(
-    AuthSignUpEvent event,
-    Emitter<AuthState> emit,
-  ) async {
+  // =====================================================================
+  // SIGN UP: This one is fine
+  // =====================================================================
+  Future<void> _onAuthSignUpEvent(
+      AuthSignUpEvent event,
+      Emitter<AuthState> emit,
+      ) async {
     emit(AuthLoadingState());
 
     final result = await registerUseCase(
@@ -120,18 +142,19 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
 
     result.fold(
-      (left) {
-        String message = "Auth Error";
-        if (left is InvalidCredentialFailure) {
-          message = "Invalid EMAIL or PASSWORD";
-        } else if (left is ServerFailure) {
-          message = "Server failure";
-        } else {
-          emit(AuthErrorState(message: message));
+          (failure) {
+        String message = "Registration Error";
+
+        if (failure is InvalidCredentialFailure) {
+          message = "Invalid EMAIL or PASSWORD format";
+        } else if (failure is ServerFailure) {
+          message = "Server failure. Please try again.";
         }
+
+        emit(AuthErrorState(message: message));
       },
-      (right) {
-        emit(AuthAuthenticatedState(userEntity: right));
+          (user) {
+        emit(AuthAuthenticatedState(userEntity: user));
       },
     );
   }

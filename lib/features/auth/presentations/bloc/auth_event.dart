@@ -29,7 +29,7 @@ class AuthSignUpEvent extends AuthEvent {
   });
 
   @override
-  List<Object?> get props => [userName,email, password];
+  List<Object?> get props => [userName, email, password];
 }
 
 class AuthLogoutEvent extends AuthEvent {}
