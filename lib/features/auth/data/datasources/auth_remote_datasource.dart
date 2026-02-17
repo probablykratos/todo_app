@@ -31,18 +31,17 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
 
-      final user =userCredential.user;
+      final user = userCredential.user;
 
       if (user == null) {
         throw ServerException();
       }
 
-      final doc =await firestore.collection('users').doc(user.uid).get();
+      final doc = await firestore.collection('users').doc(user.uid).get();
 
-      if(doc.exists){
+      if (doc.exists) {
         return UserModel.fromFirestore(doc.data()!);
-      }
-      else{
+      } else {
         return UserModel.fromFirebaseUser(userCredential.user!);
       }
     } on FirebaseAuthException catch (e) {
@@ -85,15 +84,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         uid: user.uid,
         email: user.email ?? email,
         userName: username,
-        password: password
+        password: password,
       );
       await firestore
           .collection('users')
           .doc(user.uid)
           .set(userModel.toFirestore());
       return userModel;
-
-
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
         throw InvalidCredentialException();
@@ -126,8 +123,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final user = firebaseAuth.currentUser;
       if (user == null) return null;
 
-      final doc =
-      await firestore.collection('users').doc(user.uid).get();
+      final doc = await firestore.collection('users').doc(user.uid).get();
 
       if (!doc.exists) return null;
 
