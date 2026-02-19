@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:todo/features/auth/presentations/bloc/auth_state.dart';
 import 'package:todo/features/auth/presentations/view/login.dart';
 import 'package:todo/features/auth/presentations/view/register.dart';
 import 'package:todo/features/splash/view/splash_view.dart';
-import 'package:todo/features/splash/view/homepage.dart';
+import 'package:todo/features/todo/presentation/bloc/todo_bloc.dart';
+import 'package:todo/features/todo/presentation/views/todo_page.dart';
 import '../../features/auth/presentations/bloc/auth_bloc.dart';
+import '../../injection_container.dart' as di;
 
 class AppRouter {
   final AuthBloc authBloc;
@@ -74,8 +77,17 @@ class AppRouter {
     routes: [
       GoRoute(path: '/splash', builder: (context, state) => const SplashView()),
       GoRoute(path: '/login', builder: (context, state) => const LoginView()),
-      GoRoute(path: '/register', builder: (context, state) => const RegisterView()),
-      GoRoute(path: '/home', builder: (context, state) => const HomeView()),
+      GoRoute(
+        path: '/register',
+        builder: (context, state) => const RegisterView(),
+      ),
+      GoRoute(
+        path: '/home',
+        builder: (context, state) => BlocProvider(
+          create: (_) => di.sl<TodoBloc>(),
+          child: const TodoPageView(),
+        ),
+      ),
     ],
   );
 }

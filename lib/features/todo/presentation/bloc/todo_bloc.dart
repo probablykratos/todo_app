@@ -57,84 +57,89 @@ class TodoBloc extends Bloc<TodoEvent, TodoState> {
     );
 
     final result = await createTodoUseCase(CreateTodoParams(todo: newTodo));
-    
-    result.fold((failure)=>emit(TodoErrorState(message: "Todo Error State in Create Todo")), (_) {
-      emit(TodoOperationSuccess(message: "Todo Created Successfully"));
 
-      if(currentState is TodoLoadedState){
-        emit(TodoLoadedState(todos: [newTodo,...currentState.todos]));
-      }
-    });
-
+    result.fold(
+      (failure) =>
+          emit(TodoErrorState(message: "Todo Error State in Create Todo")),
+      (_) {
+        if (currentState is TodoLoadedState) {
+          emit(TodoLoadedState(todos: [newTodo, ...currentState.todos]));
+        }
+      },
+    );
   }
 
   Future<void> _onUpdateTodo(
     UpdateTodoEvent event,
     Emitter<TodoState> emit,
   ) async {
-    final currentState =state;
+    final currentState = state;
 
-    final result =  await updateTodoUsecase(UpdateTodoParams(todo:event.todo));
+    final result = await updateTodoUsecase(UpdateTodoParams(todo: event.todo));
 
-    result.fold((failure)=>emit(TodoErrorState(message: "Error on UpdateTodo")), (_){
-      emit(TodoOperationSuccess(message: "Operaton Success"));
-
-      if(currentState is TodoLoadedState){
-        final updateTodos = currentState.todos.map((todo){
-          return todo.id == event.todo.id?event.todo:todo;
-        }).toList();
-        emit(TodoLoadedState(todos: updateTodos));
-      }
-    });
-
+    result.fold(
+      (failure) => emit(TodoErrorState(message: "Error on UpdateTodo")),
+      (_) {
+        if (currentState is TodoLoadedState) {
+          final updateTodos = currentState.todos.map((todo) {
+            return todo.id == event.todo.id ? event.todo : todo;
+          }).toList();
+          emit(TodoLoadedState(todos: updateTodos));
+        }
+      },
+    );
   }
 
   FutureOr<void> _onDeleteTodo(
     DeleteTodoEvent event,
     Emitter<TodoState> emit,
-  )async {
+  ) async {
     final currentState = state;
-    
-    final result=await deleteTodoUseCase(DeleteTodoParams(id: event.id));
 
-    result.fold((failure)=>emit(TodoErrorState(message: "Error at Delete bloc")), (_){
-      emit(TodoOperationSuccess(message: "Todo Deleted"));
+    final result = await deleteTodoUseCase(DeleteTodoParams(id: event.id));
 
-      if(currentState is TodoLoadedState){
-        final updatedTodo =currentState.todos.where((todo)=>todo.id!=event.id).toList();
-        emit(TodoLoadedState(todos: updatedTodo));
-      }
-    });
-    
+    result.fold(
+      (failure) => emit(TodoErrorState(message: "Error at Delete bloc")),
+      (_) {
+        emit(TodoOperationSuccess(message: "Todo Deleted"));
+
+        if (currentState is TodoLoadedState) {
+          final updatedTodo = currentState.todos
+              .where((todo) => todo.id != event.id)
+              .toList();
+          emit(TodoLoadedState(todos: updatedTodo));
+        }
+      },
+    );
   }
 
   FutureOr<void> _onToggleTodo(
     ToggleTodoEvent event,
     Emitter<TodoState> emit,
-  ) async{
+  ) async {
     final currentState = state;
 
-    final toggledTodo= event.todo.copyWith(
+    final toggledTodo = event.todo.copyWith(
       isCompleted: !event.todo.isCompleted,
     );
 
-    final result=await updateTodoUsecase(UpdateTodoParams(todo: toggledTodo));
+    final result = await updateTodoUsecase(UpdateTodoParams(todo: toggledTodo));
 
-    result.fold((failure)=>emit(TodoErrorState(message: "Error on toggle todo")), (_){
-
-      if(currentState is TodoLoadedState){
-        final updatedTodo =currentState.todos.map((todo){
-          return todo.id==event.todo.id?toggledTodo:todo;
-        }).toList();
-        emit(TodoLoadedState(todos: updatedTodo));
-      }
-      emit(TodoOperationSuccess(message: "Success"));
-    });
-
+    result.fold(
+      (failure) => emit(TodoErrorState(message: "Error on toggle todo")),
+      (_) {
+        if (currentState is TodoLoadedState) {
+          final updatedTodo = currentState.todos.map((todo) {
+            return todo.id == event.todo.id ? toggledTodo : todo;
+          }).toList();
+          emit(TodoLoadedState(todos: updatedTodo));
+        }
+      },
+    );
   }
 
   @override
-  Future<void>close(){
+  Future<void> close() {
     _todoSubscription?.cancel();
     return super.close();
   }

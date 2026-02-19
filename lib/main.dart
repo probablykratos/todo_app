@@ -32,7 +32,7 @@ class MyApp extends StatelessWidget {
           final appRouter = AppRouter(authBloc: authBloc);
 
           return MaterialApp.router(
-            title: "AuthClean",
+            title: "Todo",
              routerConfig: appRouter.router,
             debugShowCheckedModeBanner: false,
 
