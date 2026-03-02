@@ -30,12 +30,10 @@ class MyApp extends StatelessWidget {
         builder: (context) {
           final authBloc = context.read<AuthBloc>();
           final appRouter = AppRouter(authBloc: authBloc);
-
           return MaterialApp.router(
             title: "Todo",
              routerConfig: appRouter.router,
             debugShowCheckedModeBanner: false,
-
             theme: ThemeData(
               colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
               useMaterial3: true,

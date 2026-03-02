@@ -48,7 +48,7 @@ class _RegisterViewState extends State<RegisterView> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: Colors.red,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
@@ -66,10 +66,10 @@ class _RegisterViewState extends State<RegisterView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.lock_outline,
                         size: 80,
-                        color: Colors.blue,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -79,10 +79,16 @@ class _RegisterViewState extends State<RegisterView> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Sign in To create a Account',
+                        'Sign up to create an account',
                         style: Theme.of(
                           context,
-                        ).textTheme.bodyMedium?.copyWith(color: Colors.grey),
+                        ).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context)
+                                  .textTheme
+                                  .bodyMedium
+                                  ?.color
+                                  ?.withOpacity(0.7),
+                            ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 12),
@@ -93,7 +99,7 @@ class _RegisterViewState extends State<RegisterView> {
                           labelText: 'Username',
                           hintText: 'Enter a Username',
                           border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.email),
+                          prefixIcon: Icon(Icons.person),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -168,7 +174,13 @@ class _RegisterViewState extends State<RegisterView> {
                         onPressed: isLoading
                             ? null
                             : () {
-                                // Navigate to forgot password
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Password reset is not implemented yet.',
+                                    ),
+                                  ),
+                                );
                               },
                         child: const Text('Forgot Password?'),
                       ),

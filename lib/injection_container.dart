@@ -26,6 +26,8 @@ Future init() async {
   sl.registerLazySingleton(() => FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
 
+
+  //bloc
   sl.registerFactory(
     () => AuthBloc(
       registerUseCase: sl(),
@@ -43,6 +45,9 @@ Future init() async {
       deleteTodoUseCase: sl(),
     ),
   );
+
+
+  //useCases
   sl.registerLazySingleton(() => RegisterUseCase(authRepository: sl()));
   sl.registerLazySingleton(() => LoginUseCases(repository: sl()));
   sl.registerLazySingleton(() => LogoutUseCases(repository: sl()));
@@ -54,6 +59,8 @@ Future init() async {
   sl.registerLazySingleton(() => UpdateTodoParamsUseCase(repository: sl()));
   sl.registerLazySingleton(() => DeleteTodoUseCase(repository: sl()));
 
+
+//repositories
   sl.registerLazySingleton<AuthRepository>(
     () => AuthRepositoryIml(authRemoteDatasource: sl()),
   );

@@ -7,25 +7,15 @@ import 'package:todo/features/auth/presentations/view/login.dart';
 import 'package:todo/features/auth/presentations/view/register.dart';
 import 'package:todo/features/splash/view/splash_view.dart';
 import 'package:todo/features/todo/presentation/bloc/todo_bloc.dart';
+import 'package:todo/features/todo/presentation/views/add_todo.dart';
 import 'package:todo/features/todo/presentation/views/todo_page.dart';
 import '../../features/auth/presentations/bloc/auth_bloc.dart';
 import '../../injection_container.dart' as di;
 
 class AppRouter {
   final AuthBloc authBloc;
-  DateTime? _splashStartTime;
-  bool _canLeaveSplash = false;
 
-  AppRouter({required this.authBloc}) {
-    _splashStartTime = DateTime.now();
-    _startSplashTimer();
-  }
-
-  void _startSplashTimer() {
-    Future.delayed(const Duration(seconds: 1), () {
-      _canLeaveSplash = true;
-    });
-  }
+  AppRouter({required this.authBloc});
 
   GoRouter get router => GoRouter(
     initialLocation: '/splash',
@@ -35,18 +25,12 @@ class AppRouter {
       final currentLocation = state.matchedLocation;
       final hasInitialized = authState is! AuthInitialState;
 
-      // Force splash screen to show for at least 2 seconds
-      if (currentLocation == '/splash' && !_canLeaveSplash) {
-        return null;
-      }
-
-      // Stay on splash screen until initialization is complete
       if (!hasInitialized) {
         return currentLocation == '/splash' ? null : '/splash';
       }
 
       if (authState is AuthLoadingState) {
-        return currentLocation == '/splash' ? null : null;
+        return null;
       }
 
       if (authState is AuthErrorState) {
@@ -81,12 +65,13 @@ class AppRouter {
         path: '/register',
         builder: (context, state) => const RegisterView(),
       ),
-      GoRoute(
-        path: '/home',
-        builder: (context, state) => BlocProvider(
-          create: (_) => di.sl<TodoBloc>(),
-          child: const TodoPageView(),
-        ),
+      ShellRoute(
+        builder: (context,state,child){
+          return BlocProvider(create: (_)=>di.sl<TodoBloc>(),child: child,);
+        },
+        routes: [
+          GoRoute(path: '/home',builder: (context,state)=>TodoPageView()),
+        ],
       ),
     ],
   );

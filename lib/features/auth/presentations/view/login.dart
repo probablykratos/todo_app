@@ -46,7 +46,7 @@ class _LoginViewState extends State<LoginView> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(state.message),
-                backgroundColor: Colors.red,
+                backgroundColor: Theme.of(context).colorScheme.error,
               ),
             );
           }
@@ -64,10 +64,10 @@ class _LoginViewState extends State<LoginView> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.lock_outline,
                         size: 80,
-                        color: Colors.blue,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(height: 16),
                       Text(
@@ -79,7 +79,7 @@ class _LoginViewState extends State<LoginView> {
                       Text(
                         'Login to your account',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey,
+                          color: Theme.of(context).textTheme.bodyMedium?.color?.withOpacity(0.7),
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -145,9 +145,17 @@ class _LoginViewState extends State<LoginView> {
                       ),
                       const SizedBox(height: 16),
                       TextButton(
-                        onPressed: isLoading ? null : () {
-                          // Navigate to forgot password
-                        },
+                        onPressed: isLoading
+                            ? null
+                            : () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'Password reset is not implemented yet.',
+                                    ),
+                                  ),
+                                );
+                              },
                         child: const Text('Forgot Password?'),
                       ),
                       Row(
